@@ -16,33 +16,49 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h> 
 
 void Read_n(int* n_p);
 void Allocate_vectors(double** x_pp, double** y_pp, double** z_pp, int n);
+void Print_partial_vector(double b[], int n, char title[], int num_elements);
 void Read_vector(double a[], int n, char vec_name[]);
 void Print_vector(double b[], int n, char title[]);
 void Vector_sum(double x[], double y[], double z[], int n);
 
 /*---------------------------------------------------------------------*/
 int main(void) {
-   int n;
-   double *x, *y, *z;
+    int n = 100000; // Cambia el tamaño del vector según tus necesidades
+    double *x, *y, *z;
+    srand(time(NULL)); // Inicializa la semilla del generador de números aleatorios
 
-   Read_n(&n);
-   Allocate_vectors(&x, &y, &z, n);
-   
-   Read_vector(x, n, "x");
-   Read_vector(y, n, "y");
-   
-   Vector_sum(x, y, z, n);
+    Allocate_vectors(&x, &y, &z, n);
 
-   Print_vector(z, n, "The sum is");
+    // Llena los vectores x e y con números aleatorios
+    for (int i = 0; i < n; i++) {
+        x[i] = (double)rand() / RAND_MAX; // Números aleatorios entre 0 y 1
+        y[i] = (double)rand() / RAND_MAX;
+    }
 
-   free(x);
-   free(y);
-   free(z);
+    // Imprime los primeros y últimos 10 elementos de los vectores x e y
+    Print_partial_vector(x, n, "Primeros 10 de x", 10);
+    Print_partial_vector(y, n, "Primeros 10 de y", 10);
+    Print_partial_vector(x + n - 10, n, "Ultimos 10 de de x", 10);
+    Print_partial_vector(y + n - 10, n, "Ultimos 10 de de y", 10);
 
-   return 0;
+    // Realiza la suma de los vectores
+    for (int i = 0; i < n; i++) {
+        z[i] = x[i] + y[i];
+    }
+
+    // Imprime los primeros y últimos 10 elementos del vector resultante z
+    Print_partial_vector(z, n, "Primeros 10 de z", 10);
+    Print_partial_vector(z + n - 10, n, "Ultimos 10 de de z", 10);
+
+    free(x);
+    free(y);
+    free(z);
+
+    return 0;
 }  /* main */
 
 /*---------------------------------------------------------------------
@@ -69,18 +85,14 @@ void Read_n(int* n_p /* out */) {
  *
  * Errors:    If one of the mallocs fails, the program terminates
  */
-void Allocate_vectors(
-      double**  x_pp  /* out */, 
-      double**  y_pp  /* out */, 
-      double**  z_pp  /* out */, 
-      int       n     /* in  */) {
-   *x_pp = malloc(n*sizeof(double));
-   *y_pp = malloc(n*sizeof(double));
-   *z_pp = malloc(n*sizeof(double));
-   if (*x_pp == NULL || *y_pp == NULL || *z_pp == NULL) {
-      fprintf(stderr, "Can't allocate vectors\n");
-      exit(-1);
-   }
+void Allocate_vectors(double** x_pp, double** y_pp, double** z_pp, int n) {
+    *x_pp = malloc(n * sizeof(double));
+    *y_pp = malloc(n * sizeof(double));
+    *z_pp = malloc(n * sizeof(double));
+    if (*x_pp == NULL || *y_pp == NULL || *z_pp == NULL) {
+        fprintf(stderr, "Can't allocate vectors\n");
+        exit(-1);
+    }
 }  /* Allocate_vectors */
 
 /*---------------------------------------------------------------------
@@ -136,3 +148,12 @@ void Vector_sum(
    for (i = 0; i < n; i++)
       z[i] = x[i] + y[i];
 }  /* Vector_sum */
+
+
+void Print_partial_vector(double b[], int n, char title[], int num_elements) {
+    printf("%s\n", title);
+    for (int i = 0; i < num_elements; i++) {
+        printf("%f ", b[i]);
+    }
+    printf("\n");
+}

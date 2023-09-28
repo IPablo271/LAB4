@@ -25,20 +25,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
+#include <time.h>
 
-void Check_for_error(int local_ok, char fname[], char message[], 
-      MPI_Comm comm);
-void Read_n(int* n_p, int* local_n_p, int my_rank, int comm_sz, 
-      MPI_Comm comm);
 void Allocate_vectors(double** local_x_pp, double** local_y_pp,
       double** local_z_pp, int local_n, MPI_Comm comm);
-void Read_vector(double local_a[], int local_n, int n, char vec_name[], 
-      int my_rank, MPI_Comm comm);
-void Print_vector(double local_b[], int local_n, int n, char title[], 
-      int my_rank, MPI_Comm comm);
-void Parallel_vector_sum(double local_x[], double local_y[], 
-      double local_z[], int local_n);
-
+void Print_partial_vector(double local_b[], int local_n, int n, char title[], int my_rank, MPI_Comm comm, int num_elements);
+void Parallel_vector_sum(double local_x[], double local_y[], double local_z[], int local_n);
 
 /*-------------------------------------------------------------------*/
 int main(void) {
@@ -52,19 +44,30 @@ int main(void) {
    MPI_Comm_size(comm, &comm_sz);
    MPI_Comm_rank(comm, &my_rank);
 
-   Read_n(&n, &local_n, my_rank, comm_sz, comm);
-#  ifdef DEBUG
-   printf("Proc %d > n = %d, local_n = %d\n", my_rank, n, local_n);
-#  endif
+   srand(time(NULL)); // Inicializa la semilla del generador de números aleatorios
+
+   n = 100000; // Cambia el tamaño del vector según tus necesidades
+   local_n = n / comm_sz; // Tamaño local de cada proceso
+
    Allocate_vectors(&local_x, &local_y, &local_z, local_n, comm);
-   
-   Read_vector(local_x, local_n, n, "x", my_rank, comm);
-   Print_vector(local_x, local_n, n, "x is", my_rank, comm);
-   Read_vector(local_y, local_n, n, "y", my_rank, comm);
-   Print_vector(local_y, local_n, n, "y is", my_rank, comm);
-   
+
+   // Llena los vectores local_x e local_y con números aleatorios
+   for (int i = 0; i < local_n; i++) {
+       local_x[i] = (double)rand() / RAND_MAX; // Números aleatorios entre 0 y 1
+       local_y[i] = (double)rand() / RAND_MAX;
+   }
+
+   // Imprime los primeros y últimos 10 elementos de los vectores local_x e local_y
+   Print_partial_vector(local_x, local_n, n, "\nPrimeros 10 de local_x", my_rank, comm, 10);
+   Print_partial_vector(local_y, local_n, n, "\nPrimeros 10 de local_y", my_rank, comm, 10);
+   Print_partial_vector(local_x + local_n - 10, local_n, n, "\nUltimos 10 de local_x", my_rank, comm, 10);
+   Print_partial_vector(local_y + local_n - 10, local_n, n, "\nUltimos 10 de local_y", my_rank, comm, 10);
+
    Parallel_vector_sum(local_x, local_y, local_z, local_n);
-   Print_vector(local_z, local_n, n, "The sum is", my_rank, comm);
+
+   // Imprime los primeros y últimos 10 elementos del vector resultante local_z
+   Print_partial_vector(local_z, local_n, n, "\nPrimeros 10 de local_z", my_rank, comm, 10);
+   Print_partial_vector(local_z + local_n - 10, local_n, n, "\nUltimos 10 de local_z", my_rank, comm, 10);
 
    free(local_x);
    free(local_y);
@@ -73,7 +76,10 @@ int main(void) {
    MPI_Finalize();
 
    return 0;
-}  /* main */
+}
+
+// Resto del código de mpi_vector_add.c...
+/* main */
 
 /*-------------------------------------------------------------------
  * Function:  Check_for_error
@@ -140,7 +146,7 @@ void Read_n(
       scanf("%d", n_p);
    }
    MPI_Bcast(n_p, 1, MPI_INT, 0, comm);
-   if (*n_p = < 0 || *n_p % comm_sz != 0) local_ok = 0;
+   if (*n_p <= 0 || *n_p % comm_sz != 0) local_ok = 0;
    Check_for_error(local_ok, fname,
          "n should be > 0 and evenly divisible by comm_sz", comm);
    *local_n_p = *n_p/comm_sz;
@@ -298,3 +304,36 @@ void Parallel_vector_sum(
    for (local_i = 0; local_i < local_n; local_i++)
       local_z[local_i] = local_x[local_i] + local_y[local_i];
 }  /* Parallel_vector_sum */
+
+void Randomly_fill_vector(double local_a[], int local_n) {
+    // Inicializa la semilla para generar números aleatorios
+    srand(time(NULL));
+
+    for (int i = 0; i < local_n; i++) {
+        local_a[i] = (double)rand() / RAND_MAX; // Números aleatorios entre 0 y 1
+    }
+}
+
+void Print_partial_vector(double local_b[], int local_n, int n, char title[], int my_rank, MPI_Comm comm, int num_elements) {
+    printf("%s (Process %d):\n", title, my_rank);
+    int start = 0;
+    int end = local_n;
+
+    // Imprime los primeros 10 elementos
+    printf("First %d elements: ", num_elements);
+    for (int i = start; i < start + num_elements; i++) {
+        if (i < end) {
+            printf("%f ", local_b[i]);
+        }
+    }
+    printf("\n");
+
+    // Imprime los últimos 10 elementos
+    printf("Last %d elements: ", num_elements);
+    for (int i = end - num_elements; i < end; i++) {
+        if (i >= start) {
+            printf("%f ", local_b[i]);
+        }
+    }
+    printf("\n");
+}
