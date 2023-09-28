@@ -320,18 +320,9 @@ void Print_partial_vector(double local_b[], int local_n, int n, char title[], in
         int end = n;
 
         // Imprime los primeros 10 elementos
-        printf("First %d elements: ", num_elements);
+      //   printf("First %d elements: ", num_elements);
         for (int i = start; i < start + num_elements; i++) {
             if (i < end) {
-                printf("%f ", local_b[i]);
-            }
-        }
-        printf("\n");
-
-        // Imprime los últimos 10 elementos
-        printf("Last %d elements: ", num_elements);
-        for (int i = end - num_elements; i < end; i++) {
-            if (i >= start) {
                 printf("%f ", local_b[i]);
             }
         }

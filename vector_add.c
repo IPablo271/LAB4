@@ -41,9 +41,9 @@ int main(void) {
 
     // Imprime los primeros y últimos 10 elementos de los vectores x e y
     Print_partial_vector(x, n, "Primeros 10 de x", 10);
-    Print_partial_vector(y, n, "Primeros 10 de y", 10);
-    Print_partial_vector(x + n - 10, n, "Ultimos 10 de de x", 10);
-    Print_partial_vector(y + n - 10, n, "Ultimos 10 de de y", 10);
+    Print_partial_vector(y, n, "\nPrimeros 10 de y", 10);
+    Print_partial_vector(x + n - 10, n, "\nUltimos 10 de de x", 10);
+    Print_partial_vector(y + n - 10, n, "\nUltimos 10 de de y", 10);
 
     // Realiza la suma de los vectores
     for (int i = 0; i < n; i++) {
@@ -51,8 +51,8 @@ int main(void) {
     }
 
     // Imprime los primeros y últimos 10 elementos del vector resultante z
-    Print_partial_vector(z, n, "Primeros 10 de z", 10);
-    Print_partial_vector(z + n - 10, n, "Ultimos 10 de de z", 10);
+    Print_partial_vector(z, n, "\nPrimeros 10 de z", 10);
+    Print_partial_vector(z + n - 10, n, "\nUltimos 10 de de z", 10);
 
     free(x);
     free(y);
