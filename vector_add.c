@@ -27,7 +27,7 @@ void Vector_sum(double x[], double y[], double z[], int n);
 
 /*---------------------------------------------------------------------*/
 int main(void) {
-   int n = 100000; // Cambia el tamaño del vector según tus necesidades
+   int n = 100000; 
    double *x, *y, *z;
    srand(time(NULL)); // Inicializa la semilla del generador de números aleatorios
    clock_t start_time, end_time;

@@ -22,7 +22,7 @@
  *
  * IPP:  Section 3.4.6 (pp. 109 and ff.)
  */
-#include <stdio.h>
+#include <stdio.h>c
 #include <stdlib.h>
 #include <mpi.h>
 #include <time.h>
@@ -47,7 +47,7 @@ int main(void) {
 
    srand(time(NULL)); // Inicializa la semilla del generador de números aleatorios
 
-   n = 100000000; // Cambia el tamaño del vector según tus necesidades
+   n = 100000000; 
    local_n = n / comm_sz; // Tamaño local de cada proceso
 
    Allocate_vectors(&local_x, &local_y, &local_z, local_n, comm);

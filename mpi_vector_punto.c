@@ -8,7 +8,9 @@ void Print_partial_vector(double local_b[], int local_n, int n, char title[], in
 void Parallel_vector_sum(double local_x[], double local_y[], double local_z[], int local_n);
 double Dot_product(double local_x[], double local_y[], int local_n);
 void Scalar_vector_product(double local_x[], double scalar, int local_n);
+void Randomly_fill_vector(double local_a[], int local_n); 
 void Check_for_error(int local_ok, char fname[], char message[], MPI_Comm comm);
+
 
 int main(void) {
    int n, local_n;
@@ -24,8 +26,9 @@ int main(void) {
 
    srand(time(NULL));
 
-   n = 100000; // Cambia el tamaño del vector según tus necesidades
-   local_n = n / comm_sz; // Tamaño local de cada proceso
+   n = 4; 
+   double scalar = 10.0;
+   local_n = n;
 
    Allocate_vectors(&local_x, &local_y, &local_z, local_n, comm);
 
@@ -34,33 +37,53 @@ int main(void) {
 
    start_time = MPI_Wtime(); // Inicia la medición del tiempo
 
+   if (my_rank == 0) {
+       printf("Elementos originales de local_x : ");
+       for (int i = 0; i < n; i++) {
+           printf("%f ", local_x[i]);
+       }
+       printf("\n");
+
+       // Imprime los Elementos originales de local_y
+       printf("Elementos originales de local_y : ");
+       for (int i = 0; i < n; i++) {
+           printf("%f ", local_y[i]);
+       }
+       printf("\n");
+   }
+
    // Calcula el producto punto de local_x y local_y
-   double dot_product = Dot_product(local_x, local_y, local_n);
+   double dot_product = Dot_product(local_x, local_y, n);
 
    // Calcula el producto de un escalar por local_x y local_y
-   double scalar = 2.0; // Puedes cambiar el escalar según tus necesidades
    Scalar_vector_product(local_x, scalar, local_n);
    Scalar_vector_product(local_y, scalar, local_n);
 
-   // Calcula la suma de local_x y local_y y almacena el resultado en local_z
-   Parallel_vector_sum(local_x, local_y, local_z, local_n);
-
    end_time = MPI_Wtime(); // Finaliza la medición del tiempo
 
-   // Imprime el resultado del producto punto
+   // Imprime los resultados de la multiplicación escalar
    if (my_rank == 0) {
-       printf("Producto punto: %f\n", dot_product);
-   }
 
-   // Imprime los primeros 10 elementos del vector resultante local_z
-   Print_partial_vector(local_z, local_n, n, "Primeros 10 de local_z", my_rank, comm, 10);
+       printf("\nProducto punto: %f\n", dot_product);
 
-   // Imprime los últimos 10 elementos del vector resultante local_z
-   Print_partial_vector(local_z + n - 10, local_n, n, "Ultimos 10 de local_z", my_rank, comm, 10);
+       printf("\nResultado de la multiplicación escalar:\n");
 
-   // Imprime el tiempo de ejecución
-   if (my_rank == 0) {
-       printf("Tiempo de ejecución: %f segundos\n", end_time - start_time);
+       // Imprime los primeros 10 elementos de local_x
+       printf("Elementos modificados de local_x: ");
+       for (int i = 0; i < n; i++) {
+           printf("%f ", local_x[i]);
+       }
+       printf("\n");
+
+       // Imprime los Elementos de local_y
+       printf("Elementos modificados de local_y: ");
+       for (int i = 0; i < n; i++) {
+           printf("%f ", local_y[i]);
+       }
+       printf("\n");
+
+       // Imprime el tiempo de ejecución
+       printf("\nTiempo de ejecución: %f segundos\n", end_time - start_time);
    }
 
    free(local_x);
@@ -71,6 +94,7 @@ int main(void) {
 
    return 0;
 }
+
 
 void Allocate_vectors(double** local_x_pp, double** local_y_pp, double** local_z_pp, int local_n, MPI_Comm comm) {
     int local_ok = 1;
@@ -85,13 +109,14 @@ void Allocate_vectors(double** local_x_pp, double** local_y_pp, double** local_z
 }
 
 void Randomly_fill_vector(double local_a[], int local_n) {
-    // Inicializa la semilla para generar números aleatorios
-    srand(time(NULL));
-
     for (int i = 0; i < local_n; i++) {
-        local_a[i] = (double)rand() / RAND_MAX; // Números aleatorios entre 0 y 1
+        do {
+            local_a[i] = ((double)rand() / ((double)RAND_MAX + 1)) + 0.1; // Números aleatorios entre 0.1 y 1.0
+        } while (local_a[i] == 0);
     }
 }
+
+
 
 void Print_partial_vector(double local_b[], int local_n, int n, char title[], int my_rank, MPI_Comm comm, int num_elements) {
     if (my_rank == 0) {
@@ -120,11 +145,14 @@ double Dot_product(double local_x[], double local_y[], int local_n) {
         local_dot_product += local_x[local_i] * local_y[local_i];
     }
 
+    // printf("Local dot product: %f\n", local_dot_product);
+
     double global_dot_product;
     MPI_Allreduce(&local_dot_product, &global_dot_product, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    return global_dot_product;
+    return local_dot_product;
 }
+
 
 void Scalar_vector_product(double local_x[], double scalar, int local_n) {
     for (int local_i = 0; local_i < local_n; local_i++) {
