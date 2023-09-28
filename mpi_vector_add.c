@@ -47,7 +47,7 @@ int main(void) {
 
    srand(time(NULL)); // Inicializa la semilla del generador de números aleatorios
 
-   n = 100000; // Cambia el tamaño del vector según tus necesidades
+   n = 100000000; // Cambia el tamaño del vector según tus necesidades
    local_n = n / comm_sz; // Tamaño local de cada proceso
 
    Allocate_vectors(&local_x, &local_y, &local_z, local_n, comm);
