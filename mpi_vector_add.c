@@ -38,6 +38,7 @@ int main(void) {
    int comm_sz, my_rank;
    double *local_x, *local_y, *local_z;
    MPI_Comm comm;
+   double start_time, end_time;
 
    MPI_Init(NULL, NULL);
    comm = MPI_COMM_WORLD;
@@ -58,16 +59,25 @@ int main(void) {
    }
 
    // Imprime los primeros y últimos 10 elementos de los vectores local_x e local_y
-   Print_partial_vector(local_x, local_n, n, "\nPrimeros 10 de local_x", my_rank, comm, 10);
-   Print_partial_vector(local_y, local_n, n, "\nPrimeros 10 de local_y", my_rank, comm, 10);
-   Print_partial_vector(local_x + local_n - 10, local_n, n, "\nUltimos 10 de local_x", my_rank, comm, 10);
-   Print_partial_vector(local_y + local_n - 10, local_n, n, "\nUltimos 10 de local_y", my_rank, comm, 10);
+   Print_partial_vector(local_x, local_n, n, "Primeros 10 de local_x", my_rank, comm, 10);
+   Print_partial_vector(local_y, local_n, n, "Primeros 10 de local_y", my_rank, comm, 10);
+   Print_partial_vector(local_x + local_n - 10, local_n, n, "Ultimos 10 de local_x", my_rank, comm, 10);
+   Print_partial_vector(local_y + local_n - 10, local_n, n, "Ultimos 10 de local_y", my_rank, comm, 10);
+
+   start_time = MPI_Wtime(); // Inicia la medición del tiempo
 
    Parallel_vector_sum(local_x, local_y, local_z, local_n);
 
+   end_time = MPI_Wtime(); // Finaliza la medición del tiempo
+
    // Imprime los primeros y últimos 10 elementos del vector resultante local_z
-   Print_partial_vector(local_z, local_n, n, "\nPrimeros 10 de local_z", my_rank, comm, 10);
-   Print_partial_vector(local_z + local_n - 10, local_n, n, "\nUltimos 10 de local_z", my_rank, comm, 10);
+   Print_partial_vector(local_z, local_n, n, "Primeros 10 de local_z", my_rank, comm, 10);
+   Print_partial_vector(local_z + local_n - 10, local_n, n, "Ultimos 10 de local_z", my_rank, comm, 10);
+
+   // Imprime el tiempo de ejecución
+   if (my_rank == 0) {
+       printf("Tiempo de ejecución: %f segundos\n", end_time - start_time);
+   }
 
    free(local_x);
    free(local_y);
@@ -77,8 +87,6 @@ int main(void) {
 
    return 0;
 }
-
-// Resto del código de mpi_vector_add.c...
 /* main */
 
 /*-------------------------------------------------------------------

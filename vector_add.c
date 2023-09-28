@@ -27,39 +27,45 @@ void Vector_sum(double x[], double y[], double z[], int n);
 
 /*---------------------------------------------------------------------*/
 int main(void) {
-    int n = 100000; // Cambia el tamaño del vector según tus necesidades
-    double *x, *y, *z;
-    srand(time(NULL)); // Inicializa la semilla del generador de números aleatorios
+   int n = 100000; // Cambia el tamaño del vector según tus necesidades
+   double *x, *y, *z;
+   srand(time(NULL)); // Inicializa la semilla del generador de números aleatorios
+   clock_t start_time, end_time;
 
-    Allocate_vectors(&x, &y, &z, n);
+   Allocate_vectors(&x, &y, &z, n);
 
-    // Llena los vectores x e y con números aleatorios
-    for (int i = 0; i < n; i++) {
-        x[i] = (double)rand() / RAND_MAX; // Números aleatorios entre 0 y 1
-        y[i] = (double)rand() / RAND_MAX;
-    }
+   // Llena los vectores x e y con números aleatorios
+   for (int i = 0; i < n; i++) {
+       x[i] = (double)rand() / RAND_MAX; // Números aleatorios entre 0 y 1
+       y[i] = (double)rand() / RAND_MAX;
+   }
 
-    // Imprime los primeros y últimos 10 elementos de los vectores x e y
-    Print_partial_vector(x, n, "Primeros 10 de x", 10);
-    Print_partial_vector(y, n, "\nPrimeros 10 de y", 10);
-    Print_partial_vector(x + n - 10, n, "\nUltimos 10 de de x", 10);
-    Print_partial_vector(y + n - 10, n, "\nUltimos 10 de de y", 10);
+   // Imprime los primeros y últimos 10 elementos de los vectores x e y
+   Print_partial_vector(x, n, "Primeros 10 de x", 10);
+   Print_partial_vector(y, n, "Primeros 10 de y", 10);
+   Print_partial_vector(x + n - 10, n, "Ultimos 10 de de x", 10);
+   Print_partial_vector(y + n - 10, n, "Ultimos 10 de de y", 10);
 
-    // Realiza la suma de los vectores
-    for (int i = 0; i < n; i++) {
-        z[i] = x[i] + y[i];
-    }
+   start_time = clock(); // Inicia la medición del tiempo
 
-    // Imprime los primeros y últimos 10 elementos del vector resultante z
-    Print_partial_vector(z, n, "\nPrimeros 10 de z", 10);
-    Print_partial_vector(z + n - 10, n, "\nUltimos 10 de de z", 10);
+   Vector_sum(x, y, z, n);
 
-    free(x);
-    free(y);
-    free(z);
+   end_time = clock(); // Finaliza la medición del tiempo
 
-    return 0;
-}  /* main */
+   // Imprime los primeros y últimos 10 elementos del vector resultante z
+   Print_partial_vector(z, n, "Primeros 10 de z", 10);
+   Print_partial_vector(z + n - 10, n, "Ultimos 10 de de z", 10);
+
+   // Calcula el tiempo de ejecución en segundos
+   double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+   printf("Tiempo de ejecución: %f segundos\n", execution_time);
+
+   free(x);
+   free(y);
+   free(z);
+
+   return 0;
+} /* main */
 
 /*---------------------------------------------------------------------
  * Function:  Read_n
