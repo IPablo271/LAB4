@@ -313,27 +313,28 @@ void Randomly_fill_vector(double local_a[], int local_n) {
         local_a[i] = (double)rand() / RAND_MAX; // Números aleatorios entre 0 y 1
     }
 }
-
 void Print_partial_vector(double local_b[], int local_n, int n, char title[], int my_rank, MPI_Comm comm, int num_elements) {
-    printf("%s (Process %d):\n", title, my_rank);
-    int start = 0;
-    int end = local_n;
+    if (my_rank == 0) {
+        printf("%s:\n", title);
+        int start = 0;
+        int end = n;
 
-    // Imprime los primeros 10 elementos
-    printf("First %d elements: ", num_elements);
-    for (int i = start; i < start + num_elements; i++) {
-        if (i < end) {
-            printf("%f ", local_b[i]);
+        // Imprime los primeros 10 elementos
+        printf("First %d elements: ", num_elements);
+        for (int i = start; i < start + num_elements; i++) {
+            if (i < end) {
+                printf("%f ", local_b[i]);
+            }
         }
-    }
-    printf("\n");
+        printf("\n");
 
-    // Imprime los últimos 10 elementos
-    printf("Last %d elements: ", num_elements);
-    for (int i = end - num_elements; i < end; i++) {
-        if (i >= start) {
-            printf("%f ", local_b[i]);
+        // Imprime los últimos 10 elementos
+        printf("Last %d elements: ", num_elements);
+        for (int i = end - num_elements; i < end; i++) {
+            if (i >= start) {
+                printf("%f ", local_b[i]);
+            }
         }
+        printf("\n");
     }
-    printf("\n");
 }
